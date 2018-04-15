@@ -1,2 +1,2 @@
-/** Virtual DOM Node */
+/**定义了vnode */
 export function VNode() {}

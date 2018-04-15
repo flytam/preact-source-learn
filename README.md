@@ -1,6 +1,6 @@
 #### Preact.js 源码学习
 
-目录结构
+Preact导出的函数结构
 ```
 import { h, h as createElement } from './h';
 import { cloneElement } from './clone-element';
@@ -34,6 +34,6 @@ export {
 ```
 
 - [jsx是如何转化成virtualDOM的](./jsxToVirtualDOM)
-- virtualDOM变为真实dom
+- [virtualDOM如何变为真实dom](./virtualDOMToRealDOM)
 - diff算法
 - 生命周期

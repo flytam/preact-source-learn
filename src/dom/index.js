@@ -2,28 +2,31 @@ import { IS_NON_DIMENSIONAL } from '../constants';
 import options from '../options';
 
 
-/** Create an element with the given nodeName.
+/**
+ * 根据传入的标签名创建一个真实dom节点，svg特殊处理下
  *	@param {String} nodeName
  *	@param {Boolean} [isSvg=false]	If `true`, creates an element within the SVG namespace.
  *	@returns {Element} node
  */
 export function createNode(nodeName, isSvg) {
-	let node = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
-	node.normalizedNodeName = nodeName;
-	return node;
+    let node = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
+    node.normalizedNodeName = nodeName;
+    return node;
 }
 
 
-/** Remove a child node from its parent if attached.
+/** 从DOM中删除一个节点
  *	@param {Element} node		The node to remove
  */
 export function removeNode(node) {
-	let parentNode = node.parentNode;
-	if (parentNode) parentNode.removeChild(node);
+    let parentNode = node.parentNode;
+    if (parentNode) parentNode.removeChild(node);
 }
 
 
-/** Set a named attribute on the given Node, with special behavior for some names and event handlers.
+/**
+ * 用来更新dom节点的属性值
+ * Set a named attribute on the given Node, with special behavior for some names and event handlers.
  *	If `value` is `null`, the attribute/handler will be removed.
  *	@param {Element} node	An element to mutate
  *	@param {string} name	The name/key to set, such as an event or attribute name
@@ -33,71 +36,63 @@ export function removeNode(node) {
  *	@private
  */
 export function setAccessor(node, name, old, value, isSvg) {
-	if (name==='className') name = 'class';
+    if (name === 'className') name = 'class';
 
 
-	if (name==='key') {
-		// ignore
-	}
-	else if (name==='ref') {
-		if (old) old(null);
-		if (value) value(node);
-	}
-	else if (name==='class' && !isSvg) {
-		node.className = value || '';
-	}
-	else if (name==='style') {
-		if (!value || typeof value==='string' || typeof old==='string') {
-			node.style.cssText = value || '';
-		}
-		if (value && typeof value==='object') {
-			if (typeof old!=='string') {
-				for (let i in old) if (!(i in value)) node.style[i] = '';
-			}
-			for (let i in value) {
-				node.style[i] = typeof value[i]==='number' && IS_NON_DIMENSIONAL.test(i)===false ? (value[i]+'px') : value[i];
-			}
-		}
-	}
-	else if (name==='dangerouslySetInnerHTML') {
-		if (value) node.innerHTML = value.__html || '';
-	}
-	else if (name[0]=='o' && name[1]=='n') {
-		let useCapture = name !== (name=name.replace(/Capture$/, ''));
-		name = name.toLowerCase().substring(2);
-		if (value) {
-			if (!old) node.addEventListener(name, eventProxy, useCapture);
-		}
-		else {
-			node.removeEventListener(name, eventProxy, useCapture);
-		}
-		(node._listeners || (node._listeners = {}))[name] = value;
-	}
-	else if (name!=='list' && name!=='type' && !isSvg && name in node) {
-		setProperty(node, name, value==null ? '' : value);
-		if (value==null || value===false) node.removeAttribute(name);
-	}
-	else {
-		let ns = isSvg && (name !== (name = name.replace(/^xlink:?/, '')));
-		if (value==null || value===false) {
-			if (ns) node.removeAttributeNS('http://www.w3.org/1999/xlink', name.toLowerCase());
-			else node.removeAttribute(name);
-		}
-		else if (typeof value!=='function') {
-			if (ns) node.setAttributeNS('http://www.w3.org/1999/xlink', name.toLowerCase(), value);
-			else node.setAttribute(name, value);
-		}
-	}
+    if (name === 'key') {
+        // ignore
+    } else if (name === 'ref') {
+        if (old) old(null);
+        if (value) value(node);
+    } else if (name === 'class' && !isSvg) {
+        node.className = value || '';
+    } else if (name === 'style') {
+        if (!value || typeof value === 'string' || typeof old === 'string') {
+            node.style.cssText = value || '';
+        }
+        if (value && typeof value === 'object') {
+            if (typeof old !== 'string') {
+                for (let i in old)
+                    if (!(i in value)) node.style[i] = '';
+            }
+            for (let i in value) {
+                node.style[i] = typeof value[i] === 'number' && IS_NON_DIMENSIONAL.test(i) === false ? (value[i] + 'px') : value[i];
+            }
+        }
+    } else if (name === 'dangerouslySetInnerHTML') {
+        if (value) node.innerHTML = value.__html || '';
+    } else if (name[0] == 'o' && name[1] == 'n') {
+        let useCapture = name !== (name = name.replace(/Capture$/, ''));
+        name = name.toLowerCase().substring(2);
+        if (value) {
+            if (!old) node.addEventListener(name, eventProxy, useCapture);
+        } else {
+            node.removeEventListener(name, eventProxy, useCapture);
+        }
+        (node._listeners || (node._listeners = {}))[name] = value;
+    } else if (name !== 'list' && name !== 'type' && !isSvg && name in node) {
+        setProperty(node, name, value == null ? '' : value);
+        if (value == null || value === false) node.removeAttribute(name);
+    } else {
+        let ns = isSvg && (name !== (name = name.replace(/^xlink:?/, '')));
+        if (value == null || value === false) {
+            if (ns) node.removeAttributeNS('http://www.w3.org/1999/xlink', name.toLowerCase());
+            else node.removeAttribute(name);
+        } else if (typeof value !== 'function') {
+            if (ns) node.setAttributeNS('http://www.w3.org/1999/xlink', name.toLowerCase(), value);
+            else node.setAttribute(name, value);
+        }
+    }
 }
 
 
-/** Attempt to set a DOM property to the given value.
- *	IE & FF throw for certain property-value combinations.
+/**
+ * 设置dom节点的值
  */
 function setProperty(node, name, value) {
-	try {
-		node[name] = value;
-	} catch (e) { }
+    try {
+        node[name] = value;
+    } catch (e) {}
 }
 
 
@@ -105,5 +100,5 @@ function setProperty(node, name, value) {
  *	@private
  */
 function eventProxy(e) {
-	return this._listeners[e.type](options.event && options.event(e) || e);
+    return this._listeners[e.type](options.event && options.event(e) || e);
 }
