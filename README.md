@@ -33,7 +33,7 @@ export {
 };
 ```
 
-- [jsx是如何转化成virtualDOM的](./jsxToVirtualDOM)
-- [virtualDOM如何变为真实dom](./virtualDOMToRealDOM)
+- [jsx是如何转化成virtualDOM的](./jsxToVirtualDOM.md)
+- [virtualDOM如何变为真实dom](./virtualDOMToRealDOM.md)
 - diff算法
 - 生命周期
