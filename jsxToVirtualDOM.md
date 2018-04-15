@@ -43,11 +43,10 @@ h函数会根据子组件的不同类型进行封装，具体如下
 
 ```javascript
 {
-    nodeName:"div",//标签名
+    nodeName:"div",//标签名或者函数（自定义组件）
     children:[],//子组件组成的数组，每一项也是一个vnode
     key:"",//key
     attributes:{}//jsx的属性
 }
 ```
 
-流程图：

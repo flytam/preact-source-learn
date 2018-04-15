@@ -298,7 +298,8 @@ export function removeChildren(node) {
 }
 
 
-/** 用来处理vnode上的属性值到html node的属性值 
+/** 
+ * 用来处理vnode上的属性值到html node的属性值 
  * Apply differences in attributes from a VNode to the given DOM Element.
  *	@param {Element} dom		Element with attributes to diff `attrs` against
  *	@param {Object} attrs		The desired end-state key-value attribute pairs

@@ -9,41 +9,41 @@ const components = {};
 
 /** Reclaim a component for later re-use by the recycler. */
 export function collectComponent(component) {
-	let name = component.constructor.name;
-	(components[name] || (components[name] = [])).push(component);
+    let name = component.constructor.name;
+    (components[name] || (components[name] = [])).push(component);
 }
 
 
 /** Create a component. Normalizes differences between PFC's and classful Components. */
 export function createComponent(Ctor, props, context) {
-	let list = components[Ctor.name],
-		inst;
+    let list = components[Ctor.name],
+        inst;
 
-	if (Ctor.prototype && Ctor.prototype.render) {
-		inst = new Ctor(props, context);
-		Component.call(inst, props, context);
-	}
-	else {
-		inst = new Component(props, context);
-		inst.constructor = Ctor;
-		inst.render = doRender;
-	}
+    if (Ctor.prototype && Ctor.prototype.render) {
+        inst = new Ctor(props, context);
+        Component.call(inst, props, context);
+    } else {
+        // 无状态组件
+        inst = new Component(props, context);
+        inst.constructor = Ctor;
+        inst.render = doRender;
+    }
 
 
-	if (list) {
-		for (let i=list.length; i--; ) {
-			if (list[i].constructor===Ctor) {
-				inst.nextBase = list[i].nextBase;
-				list.splice(i, 1);
-				break;
-			}
-		}
-	}
-	return inst;
+    if (list) {
+        for (let i = list.length; i--;) {
+            if (list[i].constructor === Ctor) {
+                inst.nextBase = list[i].nextBase;
+                list.splice(i, 1);
+                break;
+            }
+        }
+    }
+    return inst;
 }
 
 
 /** The `.render()` method for a PFC backing instance. */
 function doRender(props, state, context) {
-	return this.constructor(props, context);
+    return this.constructor(props, context);
 }
