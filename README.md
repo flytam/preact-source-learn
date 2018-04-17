@@ -36,5 +36,6 @@ export {
 - [jsx是如何转化成virtualDOM的](./jsxToVirtualDOM.md)
 - [virtualDOM如何变为真实dom](./virtualDOMToRealDOM.md)
 - [Preact组件实例到DOM的过程](./buildComponent.md)
+- setState解析
 - diff算法
 - 生命周期

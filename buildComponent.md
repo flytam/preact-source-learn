@@ -46,7 +46,7 @@ Component的定义如下。通过上面和下面的代码可以知道，```creat
 // Component的定义
 export function Component(props, context) {
 	this._dirty = true;// 这个东西先不管，应该是和diff有关
-	this.context = context;// context这个东西我也暂时不知道有什么用
+	this.context = context;// 类似react的context
 	this.props = props;
 	this.state = this.state || {};
 }
@@ -83,6 +83,7 @@ export function setComponentProps(component, props, opts, context, mountAll) {
 3、如果这个组件的子vnode还是子组件的话。则再次调用```setComponentProps```、```renderComponent```去进一步生成真实dom，直到2中条件成立。（判断步骤和2、3类似），但是有点区别的是。这种调用代码是
 
 ```javascript
+component._component = inst = createComponent(childComponent, childProps, context);
 setComponentProps(inst, childProps, NO_RENDER, context, false);// 不渲染。只是去执行下生命周期方法，在这个setComponentProps内部是不调用 renderComponent的。 至于为啥。。暂时我也不知道。NO_RENDER标志位
 renderComponent(inst, SYNC_RENDER, mountAll, true);
 ```
@@ -102,6 +103,9 @@ export function renderComponent(component, opts, mountAll, isChild) {
                 renderComponent(inst, SYNC_RENDER, mountAll, true);// 对比  renderComponent(component, SYNC_RENDER, mountAll);
         } else {
             base = diff(。。。);// 挂载
+        }
+        if (!isUpdate || mountAll) {// 成立
+        mounts.unshift(component);// 把已经挂载的组件实例存进mounts数组
         }
         component.base = base; //把真实dom挂载到base属性上
         if (!diffLevel && !isChild) flushMounts();

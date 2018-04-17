@@ -105,7 +105,7 @@ export function renderComponent(component, opts, mountAll, isChild) {
             toUnmount, base;
 
         if (typeof childComponent === 'function') {
-            // ???不懂。。ok 子节点也是自定义组件的情况
+            // ? 子节点也是自定义组件的情况
             // set up high order component link
 
             let childProps = getNodeProps(rendered);
@@ -157,7 +157,7 @@ export function renderComponent(component, opts, mountAll, isChild) {
             unmountComponent(toUnmount);
         }
 
-        component.base = base;
+        component.base = base; //dom结构挂载
         if (base && !isChild) {
             let componentRef = component,
                 t = component;

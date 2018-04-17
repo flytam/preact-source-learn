@@ -7,15 +7,17 @@ import { renderComponent } from './vdom/component';
 let items = [];
 
 export function enqueueRender(component) {
-	if (!component._dirty && (component._dirty = true) && items.push(component)==1) {
-		(options.debounceRendering || defer)(rerender);
-	}
+    // dirty 为true表明这个组件重新渲染
+    if (!component._dirty && (component._dirty = true) && items.push(component) == 1) {
+        // 只会执行一遍
+        (options.debounceRendering || defer)(rerender); // 相当于setTimeout render
+    }
 }
 
 export function rerender() {
-	let p, list = items;
-	items = [];
-	while ( (p = list.pop()) ) {
-		if (p._dirty) renderComponent(p);
-	}
+    let p, list = items;
+    items = [];
+    while ((p = list.pop())) {
+        if (p._dirty) renderComponent(p);
+    }
 }
