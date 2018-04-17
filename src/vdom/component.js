@@ -63,7 +63,7 @@ export function renderComponent(component, opts, mountAll, isChild) {
         state = component.state,
         context = component.context,
         previousProps = component.prevProps || props,
-        previousState = component.prevState || state,
+        previousState = component.prevState || state, // state.....
         previousContext = component.prevContext || context,
         isUpdate = component.base,
         nextBase = component.nextBase,
@@ -89,7 +89,7 @@ export function renderComponent(component, opts, mountAll, isChild) {
         component.context = context;
     }
 
-    component.prevProps = component.prevState = component.prevContext = component.nextBase = null;
+    component.prevProps = component.prevState = component.prevContext = component.nextBase = null; // 把前一次清空
     component._dirty = false;
 
     if (!skip) {

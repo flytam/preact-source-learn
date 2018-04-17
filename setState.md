@@ -4,7 +4,7 @@
 setState(state, callback) {
     let s = this.state;
     if (!this.prevState) this.prevState = extend({}, s);
-    extend(s, typeof state==='function' ? state(s, this.props) : state);
+    extend(s, typeof state==='function' ? state(s, this.props) : state);// 语句3
     if (callback) (this._renderCallbacks = (this._renderCallbacks || [])).push(callback);
     enqueueRender(this);
 },
@@ -19,6 +19,27 @@ setState的定义如上，代码逻辑很容易看出
 3、如果提供了回调函数，则将回调函数放进```_renderCallbacks```队列
 
 4、调用enqueueRender进行组件更新
+
+why？我刚看到setState的第2、3行代码的时候也是一脸蒙蔽。为什么它要这样又搞一个```this.prevState```又搞一个```this.state```，又有个```state```呢？WTF。
+通过理清Preact的setState的执行原理。
+
+应该是用于处理一个组件在一次流程中调用了两次setState的情况。
+
+```javascript
+// 例如这里的handleClick是绑定click事件
+
+handleClick = () =>{
+    // 注意，preact中setState后state的值是会马上更新的
+    this.setState({a:this.state.a+1});
+    console.log(this.state.a);
+    this.setState({a:this.state.a+1});
+    console.log(this.state.a);
+} 
+```
+
+基本上每一个学react的人，都知道上述代码函数在react中执行之后a的值只会加一，but!!!!在Preact中是加2的！！！！通过分析Preact的setState可以解释这个原因。
+在上面的语句3，extend函数调用后，当前的state值已经改变了。但是即使state的值改变了，但是多次setState仍然是会只进行一次组件的更新（通过setTimeout把更新操作放在当前事件循环的最后），以最新的state为准。所以，这里的prevState应该是用于记录当前setState之前的上一次state的值，用于后面的diff计算。在enqueueRender执行diff时比较prevState和当前state的值
+
 
 关于enqueueRender的相关定义
 
@@ -49,8 +70,54 @@ enqueueRender的逻辑主要是
 2、语句2。可以看作是```setTimeout```，将```rerender```函数放在本次事件循环结束后执行。```rerender```函数对所有的dirty组件执
 行```renderComponent```进行组件更新。
 
+
+在renderComponent中将会执行的代码。只列出和初次渲染时有区别的主要部分
+
+```javascript
+export function renderComponent(component, opts=undefined, mountAll=undefined, isChild=undefined) {
+    ....
+    if (isUpdate) {
+        component.props = previousProps;
+        component.state = previousState;
+        component.context = previousContext;
+        if (opts !== FORCE_RENDER && // FORCE_RENDER是在调用组件的forceUpdate时设置的状态位
+            component.shouldComponentUpdate &&
+            component.shouldComponentUpdate(props, state, context) === false) {
+            skip = true;// 如果shouldComponentUpdate返回了false，设置skip标志为为true，后面的渲染部分将会被跳过
+        } else if (component.componentWillUpdate) {
+            component.componentWillUpdate(props, state, context);//执行componentWillUpdate生命周期函数
+        }
+
+        // 更新组件的props state context。因为componentWillUpdate里面有可能再次去修改它们的值
+        component.props = props;
+        component.state = state;
+        component.context = context;
+    }
+    ....
+    component._dirty = false;
+    ....
+    // 省略了diff渲染和dom更新部分代码
+    ...
+    if (!skip) {
+        if (component.componentDidUpdate) {
+            //componentDidUpdate生命周期函数
+            component.componentDidUpdate(previousProps, previousState, previousContext);
+        }
+    }
+
+    if (component._renderCallbacks != null) {
+        // 执行setState的回调
+        while (component._renderCallbacks.length) component._renderCallbacks.pop().call(component);
+    }
+}
+```
+
+逻辑看代码注释就很清晰了。先```shouldComponentUpdate```生命周期，根据返回值决定是都否更新（通过skip标志位）。然后将组件的_dirty设置为true表明已经更新了该组件。然后diff组件更新，执行```componentDidUpdate```生命周期，最后执行setState传进的callback。
+
+
 流程图如下：
 
 ![setState](/img/setState.png)
+
 
 下一步，就是研究setState组件进行更新时的diff算法干了啥
