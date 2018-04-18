@@ -22,7 +22,7 @@ export function isSameNodeType(node, vnode, hydrating) {
 
 /**
  * Check if an Element has a given nodeName, case-insensitively.
- *
+ *检查一个元素是否有nodeName，大小写不敏感
  * @param {Element} node	A DOM Element to inspect the name of.
  * @param {String} nodeName	Unnormalized name to compare against.
  */

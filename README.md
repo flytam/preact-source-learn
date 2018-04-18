@@ -38,4 +38,3 @@ export {
 - [Preact组件实例到DOM的过程](./buildComponent.md)
 - [setState解析](./setState.md)
 - diff算法
-- 生命周期

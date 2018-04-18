@@ -20,6 +20,7 @@ let isSvgMode = false;
 let hydrating = false;
 
 /** Invoke queued componentDidMount lifecycle methods */
+// 用来执行componentComponentDidMount生命周期结束
 export function flushMounts() {
     let c;
     while ((c = mounts.pop())) {
@@ -262,6 +263,7 @@ function innerDiffNode(dom, vchildren, context, mountAll, isHydrating) {
 
 
 /** Recursively recycle (or just unmount) a node and its descendants.
+ * 回收一个元素
  *	@param {Node} node						DOM node to start unmount/removal from
  *	@param {Boolean} [unmountOnly=false]	If `true`, only triggers unmount lifecycle, skips removal
  */

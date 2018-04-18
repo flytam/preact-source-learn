@@ -8,6 +8,7 @@ const components = {};
 
 
 /** Reclaim a component for later re-use by the recycler. */
+// 组件回收
 export function collectComponent(component) {
     let name = component.constructor.name;
     (components[name] || (components[name] = [])).push(component);
@@ -32,6 +33,7 @@ export function createComponent(Ctor, props, context) {
 
     if (list) {
         for (let i = list.length; i--;) {
+            // nextBase 是真实dom 为 list被回收的xxx
             if (list[i].constructor === Ctor) {
                 inst.nextBase = list[i].nextBase;
                 list.splice(i, 1);

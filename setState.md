@@ -21,9 +21,7 @@ setState的定义如上，代码逻辑很容易看出
 4、调用enqueueRender进行组件更新
 
 why？我刚看到setState的第2、3行代码的时候也是一脸蒙蔽。为什么它要这样又搞一个```this.prevState```又搞一个```this.state```，又有个```state```呢？WTF。
-通过理清Preact的setState的执行原理。
-
-应该是用于处理一个组件在一次流程中调用了两次setState的情况。
+这个```prevState```主要是保留原先的state，在```shouldComponentUpdate```和```componentWillUpdate```中通过```this.state```使用的（因为下面会分析到state的值在setState时就会被改变了，区别与react）。props同理。
 
 ```javascript
 // 例如这里的handleClick是绑定click事件
@@ -120,4 +118,13 @@ export function renderComponent(component, opts=undefined, mountAll=undefined, i
 ![setState](/img/setState.png)
 
 
-下一步，就是研究setState组件进行更新时的diff算法干了啥
+组件的原型上除了```setState```外，还有一个方法就是```forceUpdate```。该方法的作用是强制组件更新，直接执行```renderComponent```并会跳过
+```shouldComponentUpdate```生命周期。该方法和setState类似可以接收一个回调函数作为参数
+```javascript
+    forceUpdate(callback) {
+        if (callback)(this._renderCallbacks = (this._renderCallbacks || [])).push(callback);
+        renderComponent(this, FORCE_RENDER);
+    },
+```
+
+下一步，就是研究组件执行setState进行更新时的diff算法做了什么操作

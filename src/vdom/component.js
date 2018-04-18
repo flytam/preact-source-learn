@@ -22,6 +22,8 @@ export function setComponentProps(component, props, opts, context, mountAll) {
 
     if (!component.base || mountAll) {
         // 只会第一次执行
+        console.log(112345)
+        window.xxxx= 111
         if (component.componentWillMount) component.componentWillMount();
     } else if (component.componentWillReceiveProps) {
         component.componentWillReceiveProps(props, context);
@@ -58,7 +60,7 @@ export function setComponentProps(component, props, opts, context, mountAll) {
  */
 export function renderComponent(component, opts, mountAll, isChild) {
     if (component._disable) return;
-
+    console.log(2333)
     let props = component.props,
         state = component.state,
         context = component.context,
@@ -187,7 +189,7 @@ export function renderComponent(component, opts, mountAll, isChild) {
         while (component._renderCallbacks.length) component._renderCallbacks.pop().call(component);
     }
 
-    if (!diffLevel && !isChild) flushMounts();
+    if (!diffLevel && !isChild) flushMounts(); // 执行DidMount生命周期
 }
 
 
@@ -239,6 +241,7 @@ export function buildComponentFromVNode(dom, vnode, context, mountAll) {
 
 
 /** Remove a component from the DOM and recycle it.
+ * 元素卸载
  *	@param {Component} component	The Component instance to unmount
  *	@private
  */
