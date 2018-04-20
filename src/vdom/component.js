@@ -204,7 +204,7 @@ export function buildComponentFromVNode(dom, vnode, context, mountAll) {
     let c = dom && dom._component,
         originalComponent = c,
         oldDom = dom,
-        isDirectOwner = c && dom._componentConstructor === vnode.nodeName,
+        isDirectOwner = c && dom._componentConstructor === vnode.nodeName,// 直接拥有者
         isOwner = isDirectOwner,
         props = getNodeProps(vnode);
     while (c && !isOwner && (c = c._parentComponent)) {

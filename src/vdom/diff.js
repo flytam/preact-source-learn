@@ -122,6 +122,7 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
     // 普通html标签或者svg
     vnodeName = String(vnodeName);
     if (!dom || !isNamedNode(dom, vnodeName)) {
+        // 和原来的类型不一样。例如原来是spacn后来变成了div
         out = createNode(vnodeName, isSvgMode);
 
         if (dom) {
@@ -149,6 +150,7 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
 
     // 优化部分先不看
     // Optimization: fast-path for elements containing a single TextNode:
+    // 处理单文本节点的情况
     if (!hydrating && vchildren && vchildren.length === 1 && typeof vchildren[0] === 'string' && fc != null && fc.splitText !== undefined && fc.nextSibling == null) {
         if (fc.nodeValue != vchildren[0]) {
             fc.nodeValue = vchildren[0];
@@ -179,14 +181,14 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
  *	@param {Boolean} isHydrating	If `true`, consumes externally created elements similar to hydration
  */
 function innerDiffNode(dom, vchildren, context, mountAll, isHydrating) {
-    let originalChildren = dom.childNodes,
-        children = [],
-        keyed = {},
+    let originalChildren = dom.childNodes,// dom的子node集合
+        children = [],// 无key属性的旧dom
+        keyed = {},// 用来存有key的旧dom
         keyedLen = 0,
         min = 0,
-        len = originalChildren.length,
+        len = originalChildren.length,//dom子node集合长度
         childrenLen = 0,
-        vlen = vchildren ? vchildren.length : 0,
+        vlen = vchildren ? vchildren.length : 0,// vnode的子长度
         j, c, f, vchild, child;
 
     // Build up a map of keyed children and an Array of unkeyed children:
@@ -194,7 +196,7 @@ function innerDiffNode(dom, vchildren, context, mountAll, isHydrating) {
         for (let i = 0; i < len; i++) {
             let child = originalChildren[i],
                 props = child[ATTR_KEY],
-                key = vlen && props ? child._component ? child._component.__key : props.key : null;
+                key = vlen && props ? child._component ? child._component.__key : props.key : null;//key属性
             if (key != null) {
                 keyedLen++;
                 keyed[key] = child;
@@ -212,6 +214,7 @@ function innerDiffNode(dom, vchildren, context, mountAll, isHydrating) {
             // attempt to find a node based on key matching
             let key = vchild.key;
             if (key != null) {
+                // 找出vnode的key中，对应上次dom也有keydom进行比较
                 if (keyedLen && keyed[key] !== undefined) {
                     child = keyed[key];
                     keyed[key] = undefined;
@@ -222,16 +225,21 @@ function innerDiffNode(dom, vchildren, context, mountAll, isHydrating) {
             else if (!child && min < childrenLen) {
                 for (j = min; j < childrenLen; j++) {
                     if (children[j] !== undefined && isSameNodeType(c = children[j], vchild, isHydrating)) {
+                        // 找出同一类型的节点
                         child = c;
                         children[j] = undefined;
-                        if (j === childrenLen - 1) childrenLen--;
-                        if (j === min) min++;
+                        if (j === childrenLen - 1) childrenLen--; // 如果是最后长度减一
+                        if (j === min) min++; // 最前，下标加一。。小优化
                         break;
                     }
                 }
             }
 
             // morph the matched/found/created DOM child to match vchild (deep)
+
+            //将上面好到的dom node和vnode进行diff
+            // 如果child没找到，则会新建一个
+            // child新的那个应该在那里的dom
             child = idiff(child, vchild, context, mountAll);
 
             f = originalChildren[i];
@@ -250,19 +258,21 @@ function innerDiffNode(dom, vchildren, context, mountAll, isHydrating) {
 
     // remove unused keyed children:
     if (keyedLen) {
+        // 对于有key的，没用的，全部移除
         for (let i in keyed)
             if (keyed[i] !== undefined) recollectNodeTree(keyed[i], false);
     }
 
     // remove orphaned unkeyed children:
     while (min <= childrenLen) {
+        // 没key的没用的也移除
         if ((child = children[childrenLen--]) !== undefined) recollectNodeTree(child, false);
     }
 }
 
 
 
-/** Recursively recycle (or just unmount) a node and its descendants.
+/** Recursively recycle (or just /unmount) a node and its descendants.
  * 回收一个元素
  *	@param {Node} node						DOM node to start unmount/removal from
  *	@param {Boolean} [unmountOnly=false]	If `true`, only triggers unmount lifecycle, skips removal
