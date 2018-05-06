@@ -22,8 +22,6 @@ export function setComponentProps(component, props, opts, context, mountAll) {
 
     if (!component.base || mountAll) {
         // 只会第一次执行
-        console.log(112345)
-        window.xxxx= 111
         if (component.componentWillMount) component.componentWillMount();
     } else if (component.componentWillReceiveProps) {
         component.componentWillReceiveProps(props, context);
@@ -201,7 +199,7 @@ export function renderComponent(component, opts, mountAll, isChild) {
  *	@private
  */
 export function buildComponentFromVNode(dom, vnode, context, mountAll) {
-    let c = dom && dom._component,
+    let c = dom && dom._component,// 这个dom是由哪个compoennt渲染出来的
         originalComponent = c,
         oldDom = dom,
         isDirectOwner = c && dom._componentConstructor === vnode.nodeName,// 直接拥有者

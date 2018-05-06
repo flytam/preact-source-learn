@@ -16,14 +16,19 @@ diff的流程，我们从简单到复杂进行分析
 function diff(dom, vnode, context, mountAll, parent, componentRoot){}
 ```
 ```javascript
+//dom
+{
+    _component,// 这个dom是由哪个component渲染出来的
+    _parentComponent,//父
+    __preactattr_// 属性值
+}
 // component
 {
 
     base,// dom
     nextBase,//dom
 
-    _component,//vnode对应的组件
-    _parentComponent,// 父vnode对应的component
+
     _ref,// props.ref 
     _key,// props.key
     _disable,
@@ -38,7 +43,7 @@ function diff(dom, vnode, context, mountAll, parent, componentRoot){}
     previousState
 
     _dirty,// true表示该组件需要被更新
-    __preactattr_// 属性值
+    
 
     /***生命周期方法**/
     .....
