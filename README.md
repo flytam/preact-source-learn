@@ -7,6 +7,9 @@
 - [Preact组件实例到DOM的过程](./buildComponent.md)
 - [setState解析](./setState.md)
 - [非组件节点的diff分析](./normalDiff.md)
+- [组件节点的diff分析](./componentDiff.md)
+
+完结。总体思路还是很好理解的，比读react好多了，虽然有的地方还是有点绕，不太懂，Preact源码解读部分就这么多了。。
 
 tipsL src目录下是Preact源码目录，我阅读过程中在里面做了部分笔记
 
