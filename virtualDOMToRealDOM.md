@@ -76,4 +76,27 @@ export function buildComponentFromVNode(dom, vnode, context, mountAll) {}
 }
  ```
 
+值得一提的是，preact中对于事件的处理比react简单许多，react中所有的事件最终其实都是挂载到document上进行监听分发处理的，而preact的处理就简单许多了，直接挂载在元素的节点上，和普通html类似
+```javascript
+// dom/index.js
+function setAccessor()
+.....
+
+else if (name[0] == 'o' && name[1] == 'n') {
+        // 处理事件
+        let useCapture = name !== (name = name.replace(/Capture$/, ''));
+        name = name.toLowerCase().substring(2);
+        if (value) {
+            if (!old) node.addEventListener(name, eventProxy, useCapture);
+        } else {
+            node.removeEventListener(name, eventProxy, useCapture);
+        }
+        (node._listeners || (node._listeners = {}))[name] = value;
+	} 
+....
+
+```
+
+
+
  组件的创建和后续处理，后面讲解
